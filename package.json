@@ -1,0 +1,12 @@
+{
+  "name": "jepd-state-service",
+  "version": "0.0.1",
+  "main": "index.js",
+  "repository": "git@github.je-labs.com:prototypes/state-service.git",
+  "author": "Ben Glynn <ben.glynn@just-eat.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "@google-cloud/datastore": "^1.1.0"
+  }
+}

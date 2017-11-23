@@ -1,9 +1,23 @@
-/**
- * HTTP Cloud Function.
- *
- * @param {Object} req Cloud Function request context.
- * @param {Object} res Cloud Function response context.
- */
+const Datastore = require('@google-cloud/datastore');
+
+const projectId = 'state-service';
+
+const datastore = Datastore({
+    projectId: projectId
+});
+
+const getActiveActions = datastore
+    .createQuery(['Action'])
+    .filter('active', '=', true);
+
 exports.getState = function getState (req, res) {
-    res.send('Get state from datastore');
+    datastore.runQuery(getActiveActions, function(err, entities) {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            const typesOnly = entities.map(entity => entity.type);
+            res.send(typesOnly);
+        }
+    })
   };
+
