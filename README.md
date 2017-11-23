@@ -12,7 +12,8 @@ gsutil mb gs://jepd-state-service
 gcloud beta functions deploy getState --stage-bucket jepd-state-service --trigger-http
 ```
 
-Look for the `httpsTrigger` URL in the console after deployment.
+Look for the `httpsTrigger` URL in the console after deployment. For example:
+https://us-central1-state-service.cloudfunctions.net/getState
 
 ## Remove
 ```bash
