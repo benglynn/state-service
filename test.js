@@ -12,10 +12,12 @@ class Response {
     }
 
     send(data) {
-        console.log(data);
+        console.log(`${data}\n`);
         return this;
     }
 }
 
-cloudFunction.get(null, new Response());
+cloudFunction.getActions(null, new Response());
+cloudFunction.getAction({ query: { id: 5639445604728832 } }, new Response());
+cloudFunction.getAction({ query: { id: 12345 } }, new Response());
 
