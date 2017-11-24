@@ -3,12 +3,6 @@ const projectId = 'state-service';
 const KEY = Datastore.KEY;
 const datastore = Datastore({ projectId: projectId });
 
-// ONE ACTION
-
-const actionQuery = (id) => {
-    return datastore.createQuery(['Action']);
-}
-
 const getAction = (req, res) => {
     const key = datastore.key('Action');
     key.id = req.query.id;
@@ -42,12 +36,8 @@ const putAction = (req, res) => {
     }
 }
 
-// ALL ACTIONS
-
-const actionsQuery = datastore.createQuery(['Action']);
-
 const getActions = (req, res) => {
-    datastore.runQuery(actionsQuery, (err, entities) => {
+    datastore.runQuery(datastore.createQuery(['Action']), (err, entities) => {
         if (err) { jsonResponse(res, 500, {error: err.code }); }
         else {
             jsonResponse(res, 200, { actions: entities.map(formatAction) });
@@ -55,9 +45,13 @@ const getActions = (req, res) => {
     });
 }
 
-// ENDPOINTS
+const options = (req, res) => { res
+    .set({'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT'})
+    .status(200).end();
+}
 
-const actions = (req, res) => {
+const endpoint = (req, res) => {
     switch (req.method) {
         case 'GET': {
             if (req.query.id === undefined) {
@@ -69,6 +63,10 @@ const actions = (req, res) => {
         }
         case 'PUT': {
             putAction(req, res);
+            break;
+        }
+        case 'OPTIONS': {
+            options(req, res);
             break;
         }
         default: {
@@ -94,7 +92,10 @@ const formatAction = (entity) => {
     }
 }
 
-exports.actions = actions;
-exports.getActions = getActions;
-exports.getAction = getAction;
-exports.putAction = putAction;
+exports.actions = endpoint;
+
+// TESTING
+
+// exports.getActions = getActions;
+// exports.getAction = getAction;
+// exports.putAction = putAction;
