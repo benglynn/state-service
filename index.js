@@ -22,6 +22,26 @@ const getAction = (req, res) => {
     }).catch(err => { jsonResponse(res, 500, {error: err.code }); });
 }
 
+const putAction = (req, res) => {
+    const id = req.query.id;
+    const type = req.body.type;
+    const active = req.body.active;
+    if (id === undefined || 
+        type === undefined || typeof type !== 'string' ||
+        active === undefined || typeof active !== 'boolean') {
+        jsonResponse(res, 400, { error: 'malformed request' });
+    } else {
+        const key = datastore.key('Action');
+        key.id = id;
+        const action = { key: key, data: { active: active, type: type }};
+        datastore.update(action).then(() => 
+            jsonResponse(res, 200, { id: id, active: active, type: type })
+        ).catch(err => 
+            jsonResponse(res, 500, { error: err.code }));
+        
+    }
+}
+
 // ALL ACTIONS
 
 const actionsQuery = datastore.createQuery(['Action']);
@@ -37,10 +57,6 @@ const getActions = (req, res) => {
 
 // ENDPOINTS
 
-const methodNotAllowed = (req, res) => {
-    res.status(405).send(`${req.method} not allowed`);
-}
-
 const actions = (req, res) => {
     switch (req.method) {
         case 'GET': {
@@ -51,8 +67,12 @@ const actions = (req, res) => {
             }
             break;
         }
+        case 'PUT': {
+            putAction(req, res);
+            break;
+        }
         default: {
-            methodNotAllowed(req, res);
+            jsonResponse(res, 405, { error: `${req.method} not allowed` });
             break
         }
     }
@@ -77,3 +97,4 @@ const formatAction = (entity) => {
 exports.actions = actions;
 exports.getActions = getActions;
 exports.getAction = getAction;
+exports.putAction = putAction;
