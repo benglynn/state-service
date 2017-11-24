@@ -1,23 +1,44 @@
 const Datastore = require('@google-cloud/datastore');
-
 const projectId = 'state-service';
+const KEY = Datastore.KEY;
+const datastore = Datastore({ projectId: projectId });
 
-const datastore = Datastore({
-    projectId: projectId
-});
+const getQuery = datastore.createQuery(['Action']);
 
-const getActiveActions = datastore
-    .createQuery(['Action'])
-    .filter('active', '=', true);
+const formatAction = (entity) => {
+    return {
+        type: entity.type,
+        active: entity.active,
+        id: entity[KEY].id
+    }
+}
 
-exports.getState = function getState (req, res) {
-    datastore.runQuery(getActiveActions, function(err, entities) {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            const typesOnly = entities.map(entity => entity.type);
-            res.send(typesOnly);
+const get = (req, res) => {
+    datastore.runQuery(getQuery, (err, entities) => {
+        if (err) { res.status(500).send(err); }
+        else {
+            const response = {
+                actions: entities.map(formatAction)
+            };
+            const responseJSON = JSON.stringify(response, null, 2);
+            res.setHeader('Content-Type', 'application/json');
+            res.status(200).send(responseJSON);
         }
-    })
+    });
+}
+
+const actions = (req, res) => {
+    switch (req.method) {
+        case 'GET': {
+            get(req, res);
+            break;
+        }
+        default: {
+            res.status(405).send(`${req.method} not allowed`);
+            break
+        }
+    }
   };
 
+exports.actions = actions;
+exports.get = get;

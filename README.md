@@ -9,7 +9,7 @@ gsutil mb gs://jepd-state-service
 
 ## Deploy
 ```bash
-gcloud beta functions deploy getState --stage-bucket jepd-state-service --trigger-http
+gcloud beta functions deploy actions --stage-bucket jepd-state-service --trigger-http
 ```
 
 Look for the `httpsTrigger` URL in the console after deployment. For example:
