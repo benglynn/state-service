@@ -4,8 +4,7 @@ const KEY = Datastore.KEY;
 const datastore = Datastore({ projectId: projectId });
 
 const getAction = (req, res) => {
-    const key = datastore.key('Action');
-    key.id = req.query.id;
+    const key = datastore.key(['StateService', 'Demo', 'Action', req.query.id]);
     datastore.get(key).then(results => {
         const action = results[0];
         if (action !== undefined) {
@@ -25,8 +24,7 @@ const putAction = (req, res) => {
         active === undefined || typeof active !== 'boolean') {
         jsonResponse(res, 400, { error: 'malformed request' });
     } else {
-        const key = datastore.key('Action');
-        key.id = id;
+        const key = datastore.key(['StateService', 'Demo', 'Action', req.query.id]);
         const action = { key: key, data: { active: active, type: type }};
         datastore.update(action).then(() => 
             jsonResponse(res, 200, { id: id, active: active, type: type })
@@ -37,7 +35,9 @@ const putAction = (req, res) => {
 }
 
 const getActions = (req, res) => {
-    datastore.runQuery(datastore.createQuery(['Action']), (err, entities) => {
+    const ancestorKey = datastore.key(['StateService', 'Demo']);
+    const query = datastore.createQuery('Action').hasAncestor(ancestorKey);
+    datastore.runQuery(query, (err, entities) => {
         if (err) { jsonResponse(res, 500, {error: err.code }); }
         else {
             jsonResponse(res, 200, { actions: entities.map(formatAction) });
@@ -96,6 +96,6 @@ exports.actions = endpoint;
 
 // TESTING
 
-// exports.getActions = getActions;
-// exports.getAction = getAction;
-// exports.putAction = putAction;
+exports.getActions = getActions;
+exports.getAction = getAction;
+exports.putAction = putAction;
