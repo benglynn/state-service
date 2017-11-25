@@ -1,10 +1,14 @@
 const Datastore = require('@google-cloud/datastore');
 const projectId = 'state-service';
-const KEY = Datastore.KEY;
 const datastore = Datastore({ projectId: projectId });
 
+const getKeyForId = (id) => {
+    const idInt = parseInt(id);
+    return datastore.key(['StateService', 'Demo', 'Action', idInt ]);
+}
+
 const getAction = (req, res) => {
-    const key = datastore.key(['StateService', 'Demo', 'Action', req.query.id]);
+    const key = getKeyForId(req.query.id);
     datastore.get(key).then(results => {
         const action = results[0];
         if (action !== undefined) {
@@ -12,7 +16,9 @@ const getAction = (req, res) => {
         } else {
             jsonResponse(res, 404, {error: `${req.query.id} not found`});
         }
-    }).catch(err => { jsonResponse(res, 500, {error: err.code }); });
+    }).catch(err => { 
+        jsonResponse(res, 500, {error: err }); 
+    });
 }
 
 const putAction = (req, res) => {
@@ -24,12 +30,12 @@ const putAction = (req, res) => {
         active === undefined || typeof active !== 'boolean') {
         jsonResponse(res, 400, { error: 'malformed request' });
     } else {
-        const key = datastore.key(['StateService', 'Demo', 'Action', req.query.id]);
+        const key = getKeyForId(req.query.id);
         const action = { key: key, data: { active: active, type: type }};
         datastore.update(action).then(() => 
             jsonResponse(res, 200, { id: id, active: active, type: type })
         ).catch(err => 
-            jsonResponse(res, 500, { error: err.code }));
+            jsonResponse(res, 500, { error: err }));
         
     }
 }
@@ -76,8 +82,6 @@ const endpoint = (req, res) => {
     }
   };
 
-  // UTILS
-
 const jsonResponse = (res, status, data) => {
     const responseJSON = JSON.stringify(data, null, 2);
     res.setHeader('Content-Type', 'application/json');
@@ -88,13 +92,11 @@ const formatAction = (entity) => {
     return {
         type: entity.type,
         active: entity.active,
-        id: entity[KEY].id
+        id: entity[Datastore.KEY].id
     }
 }
 
 exports.actions = endpoint;
-
-// TESTING
 
 exports.getActions = getActions;
 exports.getAction = getAction;

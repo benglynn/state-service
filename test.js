@@ -17,11 +17,11 @@ class Response {
     }
 }
 
-cloudFunction.getAction({ query: { id: 5629499534213120 } }, new Response());
+cloudFunction.getAction({ query: { id: '5668600916475904' } }, new Response());
 
 cloudFunction.getActions(null, new Response());
 
-cloudFunction.getAction({ query: { id: 12345 } }, new Response());
+// cloudFunction.getAction({ query: { id: 12345 } }, new Response());
 
 cloudFunction.putAction({
     query: { id: 5629499534213120 },
