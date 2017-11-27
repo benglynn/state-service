@@ -51,10 +51,9 @@ const getActions = (req, res) => {
     });
 }
 
-const options = (req, res) => { res
-    .set({'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT'})
-    .status(200).end();
+const options = (req, res) => {
+    addCorsHeadersTo(res);
+    res.status(200).end();
 }
 
 const endpoint = (req, res) => {
@@ -83,9 +82,16 @@ const endpoint = (req, res) => {
   };
 
 const jsonResponse = (res, status, data) => {
+    addCorsHeadersTo(res);
     const responseJSON = JSON.stringify(data, null, 2);
     res.setHeader('Content-Type', 'application/json');
     res.status(status).send(responseJSON);
+}
+
+const addCorsHeadersTo = (res) => {
+    res.set('Access-Control-Allow-Origin', '*');
+    res.set('Access-Control-Allow-Methods', 'PUT, GET, OPTIONS');
+    res.set('Access-Control-Allow-Headers', 'Content-Type');
 }
 
 const formatAction = (entity) => {
